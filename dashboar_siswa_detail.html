@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Siswa - SMA Negeri 1 Sayung</title>
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --student-primary: #00b4d8;
+            --student-secondary: #0077b6;
+            --student-accent: #0096c7;
+        }
+
+        .student-dashboard {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .student-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .student-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .profile-section {
+            background: linear-gradient(135deg, var(--student-primary), var(--student-secondary));
+            color: white;
+            padding: 40px 30px;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="white" stroke-width="1" stroke-opacity="0.1"/></svg>');
+            background-size: 50px 50px;
+            animation: floatPattern 20s linear infinite;
+        }
+
+        @keyframes floatPattern {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .attendance-badge {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+            animation: pulse 2s infinite;
+        }
+
+        .badge-present { background: #4caf50; }
+        .badge-late { background: #ff9800; }
+        .badge-absent { background: #f44336; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .schedule-card {
+            border-left: 5px solid var(--student-primary);
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 0 10px 10px 0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .schedule-card:hover {
+            transform: translateX(5px);
+            background: linear-gradient(90deg, rgba(0, 180, 216, 0.1), transparent);
+        }
+
+        .schedule-card.current {
+            background: linear-gradient(90deg, rgba(0, 180, 216, 0.2), transparent);
+            border-left-color: #ff9800;
+            animation: currentClass 3s ease infinite;
+        }
+
+        @keyframes currentClass {
+            0%, 100% { box-shadow: 0 0 0 rgba(255, 152, 0, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(255, 152, 0, 0.6); }
+        }
+
+        .grade-progress {
+            height: 10px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .grade-progress::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: var(--progress);
+            background: linear-gradient(90deg, var(--student-primary), var(--student-secondary));
+            animation: fillProgress 1.5s ease-out;
+        }
+
+        @keyframes fillProgress {
+            from { width: 0; }
+            to { width: var(--progress); }
+        }
+
+        .achievement-card {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .achievement-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(255, 154, 158, 0.3);
+        }
+
+        .achievement-card::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-bell .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            animation: ring 4s ease infinite;
+        }
+
+        @keyframes ring {
+            0%, 100% { transform: rotate(0); }
+            5%, 15% { transform: rotate(-30deg); }
+            10%, 20% { transform: rotate(30deg); }
+        }
+
+        .floating-action {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .action-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--student-primary), var(--student-secondary));
+            color: white;
+            border: none;
+            box-shadow: 0 5px 20px rgba(0, 180, 216, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: floatIn 0.5s ease forwards;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0, 180, 216, 0.4);
+        }
+
+        .action-btn:nth-child(1) { animation-delay: 0.1s; }
+        .action-btn:nth-child(2) { animation-delay: 0.2s; }
+        .action-btn:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes floatIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-bubble {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+            animation: messagePop 0.5s ease;
+        }
+
+        .message-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 20px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: #a8edea transparent transparent;
+        }
+
+        @keyframes messagePop {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .calendar-day {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-day:hover {
+            background: #e3f2fd;
+            transform: scale(1.1);
+        }
+
+        .calendar-day.today {
+            background: var(--student-primary);
+            color: white;
+            animation: todayPulse 2s infinite;
+        }
+
+        @keyframes todayPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .subject-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .subject-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--student-primary), var(--student-secondary));
+        }
+
+        .subject-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+    </style>
+</head>
+<body>
+    <div class="student-dashboard">
+        <nav class="navbar navbar-expand-lg navbar-dark" style="background: rgba(0, 0, 0, 0.2);">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-graduation-cap me-2"></i>
+                    <span class="fw-bold">Student Portal</span>
+                </a>
+                <div class="d-flex align-items-center">
+                    <div class="notification-bell me-3">
+                        <i class="fas fa-bell fa-lg"></i>
+                        <span class="badge bg-danger">3</span>
+                    </div>
+                    <button class="btn btn-outline-light" onclick="showActions()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid py-4">
+            <div class="row">
+                <!-- Left Column - Profile & Stats -->
+                <div class="col-md-4 mb-4" data-aos="fade-right">
+                    <div class="student-card">
+                        <div class="profile-section">
+                            <div class="row align-items-center">
+                                <div class="col-4 text-center">
+                                    <div class="profile-avatar mb-3">
+                                        <img src="https://ui-avatars.com/api/?name=Andi+Wijaya&background=00b4d8&color=fff&size=120" 
+                                             class="rounded-circle border border-4 border-white" 
+                                             style="width: 100px; height: 100px;">
+                                    </div>
+                                </div>
+                                <div class="col-8">
+                                    <h4 class="fw-bold">Andi Wijaya</h4>
+                                    <p class="mb-1">NIS: 20230001</p>
+                                    <p class="mb-1">X IPA 1 | Semester 2</p>
+                                    <small><i class="fas fa-map-marker-alt me-1"></i> Demak, Jawa Tengah</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4">
+                            <!-- Attendance Stats -->
+                            <h5 class="mb-3"><i class="fas fa-calendar-check me-2 text-primary"></i>Statistik Kehadiran</h5>
+                            <div class="row mb-3">
+                                <div class="col-4 text-center">
+                                    <div class="display-6 fw-bold text-success">92%</div>
+                                    <small>Kehadiran</small>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <div class="display-6 fw-bold text-warning">3</div>
+                                    <small>Terlambat</small>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <div class="display-6 fw-bold text-danger">1</div>
+                                    <small>Alpha</small>
+                                </div>
+                            </div>
+
+                            <!-- Current Status -->
+                            <div class="alert alert-success" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-check-circle fa-2x me-3"></i>
+                                    <div>
+                                        <h6 class="mb-0">Status Hari Ini: Hadir</h6>
+                                        <small>Masuk: 07:15 | Keluar: 13:30</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Points System -->
+                            <div class="points-system">
+                                <h6><i class="fas fa-star me-2 text-warning"></i>Poin Siswa</h6>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span>Akademik: 850</span>
+                                    <span>Non-Akademik: 320</span>
+                                </div>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-success" style="width: 70%">Akademik</div>
+                                    <div class="progress-bar bg-info" style="width: 30%">Non-Akademik</div>
+                                </div>
+                                <small class="text-muted">Total: 1170 poin</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="student-card mt-4">
+                        <div class="p-4">
+                            <h5 class="mb-3"><i class="fas fa-bolt me-2 text-warning"></i>Aksi Cepat</h5>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <button class="btn btn-outline-primary w-100" onclick="quickAction('absensi')">
+                                        <i class="fas fa-fingerprint me-1"></i> Absensi
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button class="btn btn-outline-success w-100" onclick="quickAction('nilai')">
+                                        <i class="fas fa-chart-line me-1"></i> Nilai
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button class="btn btn-outline-warning w-100" onclick="quickAction('izin')">
+                                        <i class="fas fa-file-signature me-1"></i> Izin
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button class="btn btn-outline-danger w-100" onclick="quickAction('game')">
+                                        <i class="fas fa-gamepad me-1"></i> Game
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Column - Schedule & Grades -->
+                <div class="col-md-4 mb-4" data-aos="fade-up">
+                    <!-- Today's Schedule -->
+                    <div class="student-card mb-4">
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0"><i class="fas fa-clock me-2 text-primary"></i>Jadwal Hari Ini</h5>
+                                <span class="badge bg-primary">Senin, 15 Jan</span>
+                            </div>
+                            
+                            <div class="schedule-list">
+                                <div class="schedule-card">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">Matematika</h6>
+                                            <small><i class="fas fa-user me-1"></i> Pak Budi | 07:30-09:00</small>
+                                        </div>
+                                        <span class="badge bg-primary">Ruang 101</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="schedule-card current">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">Fisika</h6>
+                                            <small><i class="fas fa-user me-1"></i> Ibu Sari | 09:00-10:30</small>
+                                        </div>
+                                        <span class="badge bg-warning">Lab Fisika</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="schedule-card">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">Kimia</h6>
+                                            <small><i class="fas fa-user me-1"></i> Pak Ahmad | 10:30-12:00</small>
+                                        </div>
+                                        <span class="badge bg-primary">Lab Kimia</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Grades Overview -->
+                    <div class="student-card">
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0"><i class="fas fa-chart-line me-2 text-success"></i>Nilai Terbaru</h5>
+                                <button class="btn btn-sm btn-outline-success" onclick="viewAllGrades()">
+                                    Lihat Semua
+                                </button>
+                            </div>
+
+                            <div class="subject-card">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="fw-bold mb-1">Matematika</h6>
+                                        <small class="text-muted">Pak Budi</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <h4 class="fw-bold text-success mb-0">85</h4>
+                                        <small>UTS Semester 1</small>
+                                    </div>
+                                </div>
+                                <div class="grade-progress mb-2" style="--progress: 85%;"></div>
+                                <div class="d-flex justify-content-between">
+                                    <small>Rata-rata kelas: 82.5</small>
+                                    <small>Rank: 5/36</small>
+                                </div>
+                            </div>
+
+                            <div class="subject-card">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="fw-bold mb-1">Fisika</h6>
+                                        <small class="text-muted">Ibu Sari</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <h4 class="fw-bold text-warning mb-0">78</h4>
+                                        <small>UTS Semester 1</small>
+                                    </div>
+                                </div>
+                                <div class="grade-progress mb-2" style="--progress: 78%;"></div>
+                                <div class="d-flex justify-content-between">
+                                    <small>Rata-rata kelas: 80.2</small>
+                                    <small>Rank: 12/36</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Messages & Achievements -->
+                <div class="col-md-4 mb-4" data-aos="fade-left">
+                    <!-- Messages from Teachers -->
+                    <div class="student-card mb-4">
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0"><i class="fas fa-comments me-2 text-info"></i>Pesan dari Guru</h5>
+                                <span class="badge bg-info">3 baru</span>
+                            </div>
+
+                            <div class="message-bubble">
+                                <div class="d-flex align-items-start">
+                                    <img src="https://ui-avatars.com/api/?name=Budi+Santoso&background=4361ee&color=fff&size=40" 
+                                         class="rounded-circle me-3">
+                                    <div>
+                                        <h6 class="mb-1">Pak Budi - Matematika</h6>
+                                        <p class="mb-0">Kerja bagus di tugas terakhir! Nilaimu meningkat 10%.</p>
+                                        <small class="text-muted">2 jam yang lalu</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="message-bubble">
+                                <div class="d-flex align-items-start">
+                                    <img src="https://ui-avatars.com/api/?name=Sari+Wati&background=dc3545&color=fff&size=40" 
+                                         class="rounded-circle me-3">
+                                    <div>
+                                        <h6 class="mb-1">Ibu Sari - Fisika</h6>
+                                        <p class="mb-0">Ingat ada remedial besok jam 14:00 di lab.</p>
+                                        <small class="text-muted">1 hari yang lalu</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Achievements & Games -->
+                    <div class="student-card">
+                        <div class="p-4">
+                            <h5 class="mb-3"><i class="fas fa-trophy me-2 text-warning"></i>Pencapaian & Game</h5>
+                            
+                            <!-- Achievements -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <div class="achievement-card">
+                                        <i class="fas fa-brain fa-2x mb-2"></i>
+                                        <h6 class="mb-0">Jenius Matematika</h6>
+                                        <small>Top 5 kelas</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="achievement-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                                        <i class="fas fa-users fa-2x mb-2"></i>
+                                        <h6 class="mb-0">Team Player</h6>
+                                        <small>10+ group project</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Game Zone -->
+                            <div class="game-zone">
+                                <h6 class="mb-3"><i class="fas fa-gamepad me-2"></i>Game Zone</h6>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <button class="btn btn-outline-success w-100" onclick="playGame('math')">
+                                            <i class="fas fa-calculator me-1"></i> Math Race
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button class="btn btn-outline-primary w-100" onclick="playGame('word')">
+                                            <i class="fas fa-spell-check me-1"></i> Word Game
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button class="btn btn-outline-warning w-100" onclick="playGame('quiz')">
+                                            <i class="fas fa-question-circle me-1"></i> Quick Quiz
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button class="btn btn-outline-danger w-100" onclick="playGame('memory')">
+                                            <i class="fas fa-brain me-1"></i> Memory Game
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Leaderboard -->
+                            <div class="mt-3">
+                                <h6><i class="fas fa-ranking-star me-2"></i>Top 3 Kelas</h6>
+                                <div class="list-group">
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="badge bg-warning me-2">1</span>
+                                            <span>Andi Wijaya</span>
+                                        </div>
+                                        <span class="badge bg-success">1170</span>
+                                    </div>
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="badge bg-secondary me-2">2</span>
+                                            <span>Budi Santoso</span>
+                                        </div>
+                                        <span class="badge bg-primary">1090</span>
+                                    </div>
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="badge bg-danger me-2">3</span>
+                                            <span>Citra Dewi</span>
+                                        </div>
+                                        <span class="badge bg-info">1050</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Action Buttons -->
+        <div class="floating-action" id="actionButtons" style="display: none;">
+            <button class="action-btn" onclick="takeAttendance()">
+                <i class="fas fa-fingerprint"></i>
+            </button>
+            <button class="action-btn" onclick="checkGrades()">
+                <i class="fas fa-chart-line"></i>
+            </button>
+            <button class="action-btn" onclick="playGame('quick')">
+                <i class="fas fa-gamepad"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Modal -->
+    <div class="modal fade" id="gameModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, var(--student-primary), var(--student-secondary)); color: white;">
+                    <h5 class="modal-title" id="gameTitle">Math Race Challenge</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="gameContent">
+                    <div class="text-center">
+                        <h3 class="mb-4">Siap untuk tantangan?</h3>
+                        <div class="math-problem p-4 mb-3" 
+                             style="background: #f8f9fa; border-radius: 10px; font-size: 1.5rem;">
+                            <span id="num1">15</span> × <span id="num2">8</span> = ?
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <button class="btn btn-primary w-100 p-3" onclick="checkAnswer(120)">120</button>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn btn-primary w-100 p-3" onclick="checkAnswer(90)">90</button>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn btn-primary w-100 p-3" onclick="checkAnswer(100)">100</button>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn btn-primary w-100 p-100" onclick="checkAnswer(110)">110</button>
+                            </div>
+                        </div>
+                        <div class="score-board">
+                            <h4>Score: <span id="studentScore">0</span></h4>
+                            <div class="progress mb-2" style="height: 10px;">
+                                <div class="progress-bar bg-success" id="gameProgress" style="width: 0%"></div>
+                            </div>
+                            <small>Waktu: <span id="gameTime">30</span> detik</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+
+        let studentScore = 0;
+        let gameTime = 30;
+        let gameTimer;
+
+        // Floating Actions
+        function showActions() {
+            const actions = document.getElementById('actionButtons');
+            if (actions.style.display === 'none') {
+                actions.style.display = 'block';
+            } else {
+                actions.style.display = 'none';
+            }
+        }
+
+        function takeAttendance() {
+            if (navigator.geolocation) {
+                Swal.fire({
+                    title: 'Ambil Lokasi',
+                    text: 'Mengambil lokasi untuk absensi...',
+                    showConfirmButton: false,
+                    allowOutsideClick: false
+                });
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        // Check if in school area (simplified)
+                        const inSchool = checkSchoolArea(lat, lng);
+                        
+                        if (inSchool) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Absensi Berhasil!',
+                                html: `Lokasi: Dalam sekolah<br>Waktu: ${new Date().toLocaleTimeString('id-ID')}`,
+                                timer: 2000
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Di Luar Area Sekolah',
+                                text: 'Anda berada di luar area sekolah'
+                            });
+                        }
+                    },
+                    (error) => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: 'Tidak dapat mengambil lokasi'
+                        });
+                    }
+                );
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Browser Tidak Mendukung',
+                    text: 'Browser Anda tidak mendukung geolocation'
+                });
+            }
+        }
+
+        function checkSchoolArea(lat, lng) {
+            // Simplified school area check
+            const schoolLat = -6.9000;
+            const schoolLng = 110.4833;
+            const radius = 0.01; // Approximately 1km
+            
+            const distance = Math.sqrt(
+                Math.pow(lat - schoolLat, 2) + 
+                Math.pow(lng - schoolLng, 2)
+            );
+            
+            return distance <= radius;
+        }
+
+        function checkGrades() {
+            Swal.fire({
+                title: 'Nilai Saya',
+                html: `
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Mata Pelajaran</th>
+                                    <th>UTS</th>
+                                    <th>UAS</th>
+                                    <th>Rata-rata</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Matematika</td>
+                                    <td>85</td>
+                                    <td>88</td>
+                                    <td>86.5</td>
+                                </tr>
+                                <tr>
+                                    <td>Fisika</td>
+                                    <td>78</td>
+                                    <td>82</td>
+                                    <td>80.0</td>
+                                </tr>
+                                <tr>
+                                    <td>Kimia</td>
+                                    <td>82</td>
+                                    <td>85</td>
+                                    <td>83.5</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `,
+                width: 600,
+                showConfirmButton: false,
+                showCloseButton: true
+            });
+        }
+
+        function playGame(gameType) {
+            const modal = new bootstrap.Modal(document.getElementById('gameModal'));
+            document.getElementById('gameTitle').textContent = getGameTitle(gameType);
+            
+            if (gameType === 'math') {
+                startMathGame();
+            }
+            
+            modal.show();
+        }
+
+        function getGameTitle(type) {
+            const titles = {
+                'math': 'Math Race Challenge',
+                'word': 'Word Master Game',
+                'quiz': 'Quick Quiz Battle',
+                'memory': 'Memory Challenge',
+                'quick': 'Quick Math'
+            };
+            return titles[type] || 'Game Zone';
+        }
+
+        function startMathGame() {
+            studentScore = 0;
+            gameTime = 30;
+            document.getElementById('studentScore').textContent = studentScore;
+            document.getElementById('gameTime').textContent = gameTime;
+            document.getElementById('gameProgress').style.width = '0%';
+            
+            generateMathProblem();
+            startGameTimer();
+        }
+
+        function generateMathProblem() {
+            const num1 = Math.floor(Math.random() * 20) + 1;
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            document.getElementById('num1').textContent = num1;
+            document.getElementById('num2').textContent = num2;
+        }
+
+        function checkAnswer(answer) {
+            const num1 = parseInt(document.getElementById('num1').textContent);
+            const num2 = parseInt(document.getElementById('num2').textContent);
+            const correctAnswer = num1 * num2;
+            
+            if (answer === correctAnswer) {
+                studentScore += 10;
+                document.getElementById('studentScore').textContent = studentScore;
+                document.getElementById('gameProgress').style.width = 
+                    `${(studentScore / 100) * 100}%`;
+                
+                // Show success animation
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Benar!',
+                    text: '+10 poin',
+                    timer: 500
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Salah!',
+                    text: `Jawaban yang benar: ${correctAnswer}`,
+                    timer: 1000
+                });
+            }
+            
+            generateMathProblem();
+        }
+
+        function startGameTimer() {
+            clearInterval(gameTimer);
+            gameTimer = setInterval(() => {
+                gameTime--;
+                document.getElementById('gameTime').textContent = gameTime;
+                
+                if (gameTime <= 0) {
+                    clearInterval(gameTimer);
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            Swal.fire({
+                title: 'Waktu Habis!',
+                html: `<h3>Score Akhir: ${studentScore}</h3>
+                      <p>Poin akan ditambahkan ke profil Anda</p>`,
+                icon: 'info',
+                confirmButtonText: 'Main Lagi'
+            }).then(() => {
+                startMathGame();
+            });
+        }
+
+        function quickAction(action) {
+            switch(action) {
+                case 'absensi':
+                    takeAttendance();
+                    break;
+                case 'nilai':
+                    checkGrades();
+                    break;
+                case 'izin':
+                    Swal.fire({
+                        title: 'Ajukan Izin',
+                        html: `
+                            <textarea class="form-control mb-3" rows="3" placeholder="Alasan izin..."></textarea>
+                            <input type="date" class="form-control mb-3">
+                            <select class="form-select">
+                                <option>Pilih jenis izin</option>
+                                <option>Sakit</option>
+                                <option>Keluarga</option>
+                                <option>Lainnya</option>
+                            </select>
+                        `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Ajukan',
+                        preConfirm: () => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: 'Permohonan izin telah diajukan'
+                            });
+                        }
+                    });
+                    break;
+                case 'game':
+                    playGame('quick');
+                    break;
+            }
+        }
+
+        function viewAllGrades() {
+            Swal.fire({
+                title: 'Semua Nilai',
+                html: `
+                    <div class="table-responsive" style="max-height: 400px;">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Mapel</th>
+                                    <th>UTS</th>
+                                    <th>UAS</th>
+                                    <th>Tugas</th>
+                                    <th>Remidi</th>
+                                    <th>Nilai Akhir</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${generateGradeRows()}
+                            </tbody>
+                        </table>
+                    </div>
+                `,
+                width: 800,
+                showConfirmButton: false,
+                showCloseButton: true
+            });
+        }
+
+        function generateGradeRows() {
+            const subjects = [
+                { name: 'Matematika', uts: 85, uas: 88, tugas: 90, remidi: 0, akhir: 86.5 },
+                { name: 'Fisika', uts: 78, uas: 82, tugas: 85, remidi: 80, akhir: 80.0 },
+                { name: 'Kimia', uts: 82, uas: 85, tugas: 88, remidi: 0, akhir: 83.5 },
+                { name: 'Biologi', uts: 80, uas: 83, tugas: 85, remidi: 0, akhir: 81.0 },
+                { name: 'Bahasa Indonesia', uts: 88, uas: 90, tugas: 92, remidi: 0, akhir: 89.0 },
+                { name: 'Bahasa Inggris', uts: 85, uas: 87, tugas: 90, remidi: 0, akhir: 86.0 },
+                { name: 'Sejarah', uts: 79, uas: 82, tugas: 85, remidi: 80, akhir: 80.5 },
+                { name: 'PPKn', uts: 90, uas: 92, tugas: 95, remidi: 0, akhir: 91.0 }
+            ];
+            
+            return subjects.map(subject => `
+                <tr>
+                    <td>${subject.name}</td>
+                    <td>${subject.uts}</td>
+                    <td>${subject.uas}</td>
+                    <td>${subject.tugas}</td>
+                    <td>${subject.remidi || '-'}</td>
+                    <td><strong>${subject.akhir}</strong></td>
+                </tr>
+            `).join('');
+        }
+
+        // Auto update current class indicator
+        function updateCurrentClass() {
+            const now = new Date();
+            const currentHour = now.getHours() + (now.getMinutes() / 60);
+            
+            const schedules = [
+                { start: 7.5, end: 9 },    // 07:30-09:00
+                { start: 9, end: 10.5 },   // 09:00-10:30
+                { start: 10.5, end: 12 },  // 10:30-12:00
+                { start: 13, end: 14.5 },  // 13:00-14:30
+                { start: 14.5, end: 16 }   // 14:30-16:00
+            ];
+            
+            document.querySelectorAll('.schedule-card').forEach((card, index) => {
+                card.classList.remove('current');
+                if (index < schedules.length) {
+                    const schedule = schedules[index];
+                    if (currentHour >= schedule.start && currentHour < schedule.end) {
+                        card.classList.add('current');
+                    }
+                }
+            });
+        }
+
+        // Update every minute
+        setInterval(updateCurrentClass, 60000);
+        updateCurrentClass();
+
+        // Simulate real-time notifications
+        function simulateNotification() {
+            const messages = [
+                "Reminder: UAS Matematika minggu depan!",
+                "Pembayaran SPP jatuh tempo besok",
+                "Ekstrakurikuler basket hari ini jam 15:00",
+                "Pengumuman: Juara kelas bulan ini adalah Andi Wijaya!"
+            ];
+            
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            
+            // Show notification
+            const notification = document.createElement('div');
+            notification.className = 'toast show position-fixed top-0 end-0 m-3';
+            notification.style.zIndex = '9999';
+            notification.innerHTML = `
+                <div class="toast-header" style="background: var(--student-primary); color: white;">
+                    <i class="fas fa-bell me-2"></i>
+                    <strong class="me-auto">Notifikasi</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">
+                    ${randomMessage}
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Random notifications every 2-5 minutes
+        setInterval(simulateNotification, Math.random() * 180000 + 120000);
+    </script>
+</body>
+</html>

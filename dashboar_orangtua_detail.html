@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Orang Tua - SMA Negeri 1 Sayung</title>
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Leaflet Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --parent-primary: #6a11cb;
+            --parent-secondary: #2575fc;
+            --parent-accent: #ff416c;
+        }
+
+        .parent-dashboard {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .glass-parent-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .glass-parent-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .parent-header {
+            background: linear-gradient(135deg, var(--parent-primary), var(--parent-secondary));
+            color: white;
+            padding: 40px 30px;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .parent-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            animation: rotatePattern 20s linear infinite;
+        }
+
+        @keyframes rotatePattern {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .child-status-card {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .child-status-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+        }
+
+        .child-status-card:hover::after {
+            animation: shine 1.5s ease;
+        }
+
+        @keyframes shine {
+            100% { transform: translateX(100%); }
+        }
+
+        .location-map {
+            height: 200px;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .pulse-dot {
+            width: 20px;
+            height: 20px;
+            background: var(--parent-accent);
+            border-radius: 50%;
+            position: absolute;
+            animation: pulse 2s infinite;
+        }
+
+        .attendance-timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .attendance-timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--parent-primary), var(--parent-secondary));
+        }
+
+        .timeline-item {
+            position: relative;
+            padding: 10px 0;
+            padding-left: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -25px;
+            top: 15px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid var(--parent-primary);
+            animation: pulse 2s infinite;
+        }
+
+        .grade-sparkline {
+            height: 60px;
+            position: relative;
+        }
+
+        .sparkline-point {
+            position: absolute;
+            bottom: 0;
+            width: 10px;
+            height: var(--height);
+            background: linear-gradient(to top, var(--parent-primary), var(--parent-secondary));
+            border-radius: 5px 5px 0 0;
+            animation: growHeight 1s ease-out;
+        }
+
+        @keyframes growHeight {
+            from { height: 0; }
+            to { height: var(--height); }
+        }
+
+        .notification-card {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .notification-card:hover {
+            transform: translateX(10px);
+        }
+
+        .notification-card.new::before {
+            content: 'BARU';
+            position: absolute;
+            top: 10px;
+            right: -30px;
+            background: var(--parent-accent);
+            color: white;
+            padding: 5px 30px;
+            transform: rotate(45deg);
+            font-size: 12px;
+        }
+
+        .message-bubble-parent {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+            animation: slideInRight 0.5s ease;
+        }
+
+        .message-bubble-parent::before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            right: 20px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: #a8edea transparent transparent;
+            transform: rotate(180deg);
+        }
+
+        .calendar-day-parent {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .calendar-day-parent:hover {
+            background: #e3f2fd;
+            transform: scale(1.1);
+        }
+
+        .calendar-day-parent.absent::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            width: 10px;
+            height: 10px;
+            background: var(--parent-accent);
+            border-radius: 50%;
+        }
+
+        .finance-card {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .finance-card::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+        }
+
+        .floating-wa-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 20px rgba(37, 211, 102, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            animation: floatUpDown 3s ease-in-out infinite;
+        }
+
+        .floating-wa-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
+        }
+
+        @keyframes floatUpDown {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .contact-teacher-btn {
+            background: linear-gradient(135deg, var(--parent-primary), var(--parent-secondary));
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-teacher-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: translateX(-100%);
+        }
+
+        .contact-teacher-btn:hover::after {
+            animation: slideShine 1.5s ease;
+        }
+
+        @keyframes slideShine {
+            100% { transform: translateX(100%); }
+        }
+
+        .activity-feed {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .activity-item-parent {
+            padding: 10px;
+            border-left: 3px solid var(--parent-primary);
+            margin-bottom: 10px;
+            background: rgba(106, 17, 203, 0.05);
+            border-radius: 0 10px 10px 0;
+            animation: slideInLeft 0.5s ease;
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="parent-dashboard">
+        <nav class="navbar navbar-expand-lg navbar-dark" style="background: rgba(0, 0, 0, 0.3);">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-user-friends me-2"></i>
+                    <span class="fw-bold">Parent Portal</span>
+                </a>
+                <div class="d-flex align-items-center">
+                    <div class="notification-bell me-3 position-relative">
+                        <i class="fas fa-bell fa-lg"></i>
+                        <span class="badge bg-danger position-absolute top-0 start-100 translate-middle" 
+                              style="animation: pulse 2s infinite;">3</span>
+                    </div>
+                    <button class="btn btn-outline-light" onclick="openSettings()">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid py-4">
+            <div class="row g-4">
+                <!-- Header Section -->
+                <div class="col-12">
+                    <div class="glass-parent-card" data-aos="fade-down">
+                        <div class="parent-header">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h1 class="display-6 fw-bold">Selamat Datang, Orang Tua!</h1>
+                                    <p class="lead">Pantau perkembangan anak Anda di SMA Negeri 1 Sayung</p>
+                                    <div class="parent-info">
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Wijaya&background=6a11cb&color=fff&size=50" 
+                                                 class="rounded-circle border border-3 border-white me-3">
+                                            <div>
+                                                <h5 class="mb-0">Bapak Wijaya</h5>
+                                                <small>Orang tua dari: Andi Wijaya</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="floating-avatar">
+                                        <div class="position-relative">
+                                            <img src="https://ui-avatars.com/api/?name=Andi+Wijaya&background=2575fc&color=fff&size=120" 
+                                                 class="rounded-circle border border-4 border-white">
+                                            <div class="pulse-dot" style="bottom: 10px; right: 10px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Child Status & Location -->
+                <div class="col-md-8" data-aos="fade-right">
+                    <div class="glass-parent-card mb-4">
+                        <div class="p-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="child-status-card mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-user-graduate fa-3x me-3"></i>
+                                            <div>
+                                                <h3 class="mb-0">Andi Wijaya</h3>
+                                                <p class="mb-0">X IPA 1 | NIS: 20230001</p>
+                                                <small><i class="fas fa-map-marker-alt me-1"></i> SMA Negeri 1 Sayung</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Current Status -->
+                                    <div class="alert alert-success" role="alert">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-check-circle fa-2x me-3"></i>
+                                            <div>
+                                                <h5 class="mb-0">Status: Sedang Belajar</h5>
+                                                <small>Mata Pelajaran: Fisika (Ibu Sari)</small>
+                                                <div class="mt-2">
+                                                    <small><i class="fas fa-clock me-1"></i> Waktu: 09:15 - 10:45</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <h5 class="mb-3"><i class="fas fa-map-marked-alt me-2"></i>Lokasi Real-time</h5>
+                                    <div class="location-map mb-3" id="map"></div>
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-success">
+                                            <i class="fas fa-circle me-1"></i> Dalam Sekolah
+                                        </small>
+                                        <small>
+                                            <i class="fas fa-sync-alt me-1"></i> Update: 1 menit lalu
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attendance Timeline -->
+                    <div class="glass-parent-card mb-4" data-aos="fade-up">
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4><i class="fas fa-calendar-week me-2"></i>Riwayat Kehadiran</h4>
+                                <button class="btn btn-sm btn-primary" onclick="viewAttendanceReport()">
+                                    <i class="fas fa-file-pdf me-1"></i> Laporan
+                                </button>
+                            </div>
+
+                            <div class="attendance-timeline">
+                                <div class="timeline-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="mb-1">Senin, 15 Jan 2024</h6>
+                                            <small class="text-success">Hadir tepat waktu</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <small>Masuk: 07:15</small><br>
+                                            <small>Keluar: 13:30</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="mb-1">Jumat, 12 Jan 2024</h6>
+                                            <small class="text-warning">Terlambat 15 menit</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <small>Masuk: 07:45</small><br>
+                                            <small>Keluar: 13:30</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="mb-1">Rabu, 10 Jan 2024</h6>
+                                            <small class="text-danger">Izin (Sakit)</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <small>-</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Info & Contact -->
+                <div class="col-md-4" data-aos="fade-left">
+                    <!-- Child's Grades -->
+                    <div class="glass-parent-card mb-4">
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4><i class="fas fa-chart-line me-2"></i>Nilai Anak</h4>
+                                <span class="badge bg-success">Semester 1</span>
+                            </div>
+
+                            <!-- Grade Summary -->
+                            <div class="row mb-3">
+                                <div class="col-6 text-center">
+                                    <div class="display-6 fw-bold text-primary">86.5</div>
+                                    <small>Rata-rata</small>
+                                </div>
+                                <div class="col-6 text-center">
+                                    <div class="display-6 fw-bold text-warning">5</div>
+                                    <small>Ranking</small>
+                                </div>
+                            </div>
+
+                            <!-- Grade Chart -->
+                            <div class="grade-sparkline mb-3">
+                                <!-- Sparkline will be generated by JavaScript -->
+                            </div>
+
+                            <!-- Top Subjects -->
+                            <div>
+                                <h6>Mata Pelajaran Terbaik:</h6>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Matematika</span>
+                                    <span class="fw-bold">85</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Bahasa Indonesia</span>
+                                    <span class="fw-bold">88</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>PPKn</span>
+                                    <span class="fw-bold">90</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Teachers -->
+                    <div class="glass-parent-card">
+                        <div class="p-4">
+                            <h4 class="mb-3"><i class="fas fa-address-book me-2"></i>Kontak Guru</h4>
+                            
+                            <div class="mb-3">
+                                <h6>Wali Kelas</h6>
+                                <div class="d-flex align-items-center mb-2">
+                                    <img src="https://ui-avatars.com/api/?name=Budi+Santoso&background=6a11cb&color=fff&size=40" 
+                                         class="rounded-circle me-3">
+                                    <div>
+                                        <h6 class="mb-0">Budi Santoso, S.Pd</h6>
+                                        <small>Matematika</small>
+                                    </div>
+                                </div>
+                                <button class="contact-teacher-btn w-100" onclick="contactTeacher('budi')">
+                                    <i class="fab fa-whatsapp me-2"></i> Hubungi via WhatsApp
+                                </button>
+                            </div>
+
+                            <div class="mb-3">
+                                <h6>Guru Fisika</h6>
+                                <div class="d-flex align-items-center mb-2">
+                                    <img src="https://ui-avatars.com/api/?name=Sari+Wati&background=2575fc&color=fff&size=40" 
+                                         class="rounded-circle me-3">
+                                    <div>
+                                        <h6 class="mb-0">Sari Wati, M.Pd</h6>
+                                        <small>Fisika</small>
+                                    </div>
+                                </div>
+                                <button class="contact-teacher-btn w-100" onclick="contactTeacher('sari')">
+                                    <i class="fas fa-envelope me-2"></i> Kirim Email
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications & Messages -->
+                <div class="col-md-6" data-aos="fade-up">
+                    <div class="glass-parent-card mb-4">
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4><i class="fas fa-bell me-2"></i>Notifikasi Terbaru</h4>
+                                <span class="badge bg-danger">3 baru</span>
+                            </div>
+
+                            <div class="activity-feed">
+                                <div class="notification-card new" onclick="showNotification(1)">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-calendar-check fa-2x text-primary me-3"></i>
+                                        <div>
+                                            <h6 class="mb-0">UAS Semester 1</h6>
+                                            <small class="text-muted">Ujian Akhir Semester dimulai 22 Januari 2024</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="notification-card new" onclick="showNotification(2)">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-money-bill-wave fa-2x text-success me-3"></i>
+                                        <div>
+                                            <h6 class="mb-0">Pembayaran SPP</h6>
+                                            <small class="text-muted">Pembayaran SPP Januari jatuh tempo 20 Januari 2024</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="notification-card" onclick="showNotification(3)">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user-graduate fa-2x text-warning me-3"></i>
+                                        <div>
+                                            <h6 class="mb-0">Peringkat Kelas</h6>
+                                            <small class="text-muted">Anak Anda menduduki peringkat 5 di kelas X IPA 1</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial & School Info -->
+                <div class="col-md-6" data-aos="fade-up">
+                    <div class="glass-parent-card mb-4">
+                        <div class="p-4">
+                            <h4 class="mb-3"><i class="fas fa-university me-2"></i>Informasi Keuangan</h4>
+                            
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <div class="finance-card">
+                                        <i class="fas fa-credit-card fa-2x mb-2"></i>
+                                        <h5>SPP Januari</h5>
+                                        <h3 class="fw-bold">Rp 150.000</h3>
+                                        <small class="badge bg-warning">Belum Lunas</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="finance-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                        <i class="fas fa-money-check-alt fa-2x mb-2"></i>
+                                        <h5>Bantuan PIP</h5>
+                                        <h3 class="fw-bold">Rp 450.000</h3>
+                                        <small class="badge bg-success">Diterima</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Payment History -->
+                            <div>
+                                <h6 class="mb-2">Riwayat Pembayaran</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Bulan</th>
+                                                <th>Jumlah</th>
+                                                <th>Status</th>
+                                                <th>Tanggal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Des 2023</td>
+                                                <td>Rp 150.000</td>
+                                                <td><span class="badge bg-success">Lunas</span></td>
+                                                <td>10 Des 2023</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Nov 2023</td>
+                                                <td>Rp 150.000</td>
+                                                <td><span class="badge bg-success">Lunas</span></td>
+                                                <td>12 Nov 2023</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Okt 2023</td>
+                                                <td>Rp 150.000</td>
+                                                <td><span class="badge bg-success">Lunas</span></td>
+                                                <td>15 Okt 2023</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages from School -->
+                <div class="col-12" data-aos="fade-up">
+                    <div class="glass-parent-card">
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4><i class="fas fa-comment-dots me-2"></i>Pesan dari Sekolah</h4>
+                                <button class="btn btn-sm btn-primary" onclick="sendMessageToSchool()">
+                                    <i class="fas fa-reply me-1"></i> Balas Pesan
+                                </button>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="message-bubble-parent">
+                                        <div class="d-flex align-items-start">
+                                            <img src="https://ui-avatars.com/api/?name=SMA+Sayung&background=6a11cb&color=fff&size=40" 
+                                                 class="rounded-circle me-3">
+                                            <div>
+                                                <h6 class="mb-1">Kepala Sekolah</h6>
+                                                <p class="mb-0">Orang tua diharapkan hadir dalam pertemuan wali murid tanggal 25 Januari 2024.</p>
+                                                <small class="text-muted">14 Jan 2024, 10:30</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="message-bubble-parent">
+                                        <div class="d-flex align-items-start">
+                                            <img src="https://ui-avatars.com/api/?name=OSIS&background=2575fc&color=fff&size=40" 
+                                                 class="rounded-circle me-3">
+                                            <div>
+                                                <h6 class="mb-1">OSIS SMA Negeri 1 Sayung</h6>
+                                                <p class="mb-0">Pendaftaran ekstrakurikuler basket dibuka hingga 20 Januari.</p>
+                                                <small class="text-muted">13 Jan 2024, 14:20</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="message-bubble-parent">
+                                        <div class="d-flex align-items-start">
+                                            <img src="https://ui-avatars.com/api/?name=Perpustakaan&background=ff416c&color=fff&size=40" 
+                                                 class="rounded-circle me-3">
+                                            <div>
+                                                <h6 class="mb-1">Perpustakaan Sekolah</h6>
+                                                <p class="mb-0">Pengingat: Buku Matematika kelas X harus dikembalikan minggu depan.</p>
+                                                <small class="text-muted">12 Jan 2024, 09:15</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="message-bubble-parent">
+                                        <div class="d-flex align-items-start">
+                                            <img src="https://ui-avatars.com/api/?name=TU+Sekolah&background=43e97b&color=fff&size=40" 
+                                                 class="rounded-circle me-3">
+                                            <div>
+                                                <h6 class="mb-1">Tata Usaha</h6>
+                                                <p class="mb-0">Mohon segera melengkapi berkas untuk penerimaan PIP.</p>
+                                                <small class="text-muted">11 Jan 2024, 15:45</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating WhatsApp Button -->
+        <div class="floating-wa-btn" onclick="openWhatsApp()">
+            <i class="fab fa-whatsapp"></i>
+        </div>
+
+        <!-- Contact Modal -->
+        <div class="modal fade" id="contactModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" style="background: linear-gradient(135deg, var(--parent-primary), var(--parent-secondary)); color: white;">
+                        <h5 class="modal-title" id="contactTitle">Hubungi Sekolah</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="contactForm">
+                            <div class="mb-3">
+                                <label class="form-label">Kepada</label>
+                                <select class="form-select" id="recipient">
+                                    <option value="wali_kelas">Wali Kelas (Pak Budi)</option>
+                                    <option value="kepsek">Kepala Sekolah</option>
+                                    <option value="tu">Tata Usaha</option>
+                                    <option value="osis">OSIS</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Subjek</label>
+                                <input type="text" class="form-control" id="subject" placeholder="Subjek pesan">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Pesan</label>
+                                <textarea class="form-control" id="message" rows="4" placeholder="Tulis pesan Anda..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Via</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="via" id="wa" checked>
+                                    <label class="form-check-label" for="wa">
+                                        <i class="fab fa-whatsapp text-success me-1"></i> WhatsApp
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="via" id="email">
+                                    <label class="form-check-label" for="email">
+                                        <i class="fas fa-envelope text-primary me-1"></i> Email
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="via" id="sms">
+                                    <label class="form-check-label" for="sms">
+                                        <i class="fas fa-sms text-info me-1"></i> SMS
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-primary" onclick="sendContactMessage()">
+                            <i class="fas fa-paper-plane me-1"></i> Kirim
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+
+        // Initialize Map
+        function initMap() {
+            const map = L.map('map').setView([-6.9000, 110.4833], 16);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Add school marker
+            L.marker([-6.9000, 110.4833])
+                .addTo(map)
+                .bindPopup('<b>SMA Negeri 1 Sayung</b><br>Demak, Jawa Tengah')
+                .openPopup();
+
+            // Add student location marker with pulse animation
+            const studentMarker = L.marker([-6.9002, 110.4830])
+                .addTo(map)
+                .bindPopup('<b>Andi Wijaya</b><br>X IPA 1<br>Status: Sedang belajar');
+
+            // Create pulse effect
+            const pulseIcon = L.divIcon({
+                html: `<div style="width: 20px; height: 20px; background: var(--parent-accent); border-radius: 50%; position: relative;">
+                          <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 2px solid var(--parent-accent); border-radius: 50%; animation: pulse 2s infinite;"></div>
+                       </div>`,
+                className: 'pulse-marker',
+                iconSize: [20, 20]
+            });
+
+            L.marker([-6.9002, 110.4830], {icon: pulseIcon}).addTo(map);
+        }
+
+        // Initialize map after page load
+        setTimeout(initMap, 500);
+
+        // Generate sparkline
+        function generateSparkline() {
+            const container = document.querySelector('.grade-sparkline');
+            const grades = [85, 78, 82, 88, 90, 86, 85, 89];
+            const maxGrade = Math.max(...grades);
+            
+            container.innerHTML = '';
+            
+            grades.forEach((grade, index) => {
+                const point = document.createElement('div');
+                point.className = 'sparkline-point';
+                point.style.left = `${(index / (grades.length - 1)) * 100}%`;
+                point.style.height = `${(grade / maxGrade) * 100}%`;
+                point.style.setProperty('--height', `${(grade / maxGrade) * 100}%`);
+                container.appendChild(point);
+            });
+        }
+
+        // Contact teacher function
+        function contactTeacher(teacher) {
+            const modal = new bootstrap.Modal(document.getElementById('contactModal'));
+            document.getElementById('contactTitle').textContent = 'Hubungi Guru';
+            
+            if (teacher === 'budi') {
+                document.getElementById('recipient').value = 'wali_kelas';
+            } else if (teacher === 'sari') {
+                document.getElementById('recipient').value = 'tu';
+            }
+            
+            modal.show();
+        }
+
+        // Open WhatsApp
+        function openWhatsApp() {
+            const phone = '6281234567890';
+            const message = 'Halo, saya orang tua dari Andi Wijaya (X IPA 1, NIS: 20230001). Saya ingin bertanya tentang...';
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://wa.me/${phone}?text=${encodedMessage}`, '_blank');
+        }
+
+        // Send contact message
+        function sendContactMessage() {
+            const recipient = document.getElementById('recipient').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            const via = document.querySelector('input[name="via"]:checked').id;
+
+            if (!subject || !message) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Perhatian',
+                    text: 'Harap isi subjek dan pesan'
+                });
+                return;
+            }
+
+            // Simulate sending
+            Swal.fire({
+                title: 'Mengirim pesan...',
+                text: 'Mohon tunggu sebentar',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            setTimeout(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Pesan telah dikirim ke sekolah'
+                });
+                
+                const modal = bootstrap.Modal.getInstance(document.getElementById('contactModal'));
+                modal.hide();
+                
+                // Clear form
+                document.getElementById('contactForm').reset();
+            }, 2000);
+        }
+
+        // Show notification details
+        function showNotification(id) {
+            const notifications = {
+                1: {
+                    title: 'UAS Semester 1',
+                    content: 'Ujian Akhir Semester 1 akan dilaksanakan pada tanggal 22-30 Januari 2024. Jadwal lengkap dapat diakses di portal siswa.'
+                },
+                2: {
+                    title: 'Pembayaran SPP',
+                    content: 'Pembayaran SPP untuk bulan Januari 2024 jatuh tempo pada tanggal 20 Januari 2024. Pembayaran dapat dilakukan via transfer bank atau langsung ke TU.'
+                },
+                3: {
+                    title: 'Peringkat Kelas',
+                    content: 'Selamat! Andi Wijaya menduduki peringkat 5 di kelas X IPA 1 dengan nilai rata-rata 86.5. Pertahankan prestasinya!'
+                }
+            };
+
+            const notification = notifications[id];
+            
+            Swal.fire({
+                title: notification.title,
+                html: `<p>${notification.content}</p>`,
+                icon: 'info',
+                confirmButtonText: 'Tutup',
+                showCloseButton: true
+            });
+        }
+
+        // View attendance report
+        function viewAttendanceReport() {
+            Swal.fire({
+                title: 'Laporan Kehadiran',
+                html: `
+                    <div class="text-center">
+                        <h4 class="mb-3">Laporan Kehadiran Andi Wijaya</h4>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Bulan</th>
+                                        <th>Hadir</th>
+                                        <th>Izin</th>
+                                        <th>Sakit</th>
+                                        <th>Alpha</th>
+                                        <th>%</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Jan 2024</td>
+                                        <td>15</td>
+                                        <td>1</td>
+                                        <td>0</td>
+                                        <td>0</td>
+                                        <td>94%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Des 2023</td>
+                                        <td>22</td>
+                                        <td>0</td>
+                                        <td>0</td>
+                                        <td>0</td>
+                                        <td>100%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Nov 2023</td>
+                                        <td>21</td>
+                                        <td>1</td>
+                                        <td>0</td>
+                                        <td>1</td>
+                                        <td>91%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <button class="btn btn-primary mt-3" onclick="downloadReport()">
+                            <i class="fas fa-download me-1"></i> Download PDF
+                        </button>
+                    </div>
+                `,
+                width: 700,
+                showConfirmButton: false,
+                showCloseButton: true
+            });
+        }
+
+        function downloadReport() {
+            Swal.fire({
+                title: 'Mengunduh...',
+                text: 'Laporan sedang diproses',
+                timer: 2000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+        }
+
+        function sendMessageToSchool() {
+            const modal = new bootstrap.Modal(document.getElementById('contactModal'));
+            document.getElementById('contactTitle').textContent = 'Kirim Pesan ke Sekolah';
+            modal.show();
+        }
+
+        function openSettings() {
+            Swal.fire({
+                title: 'Pengaturan',
+                html: `
+                    <div class="text-start">
+                        <div class="mb-3">
+                            <label class="form-label">Notifikasi</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="notifWA" checked>
+                                <label class="form-check-label" for="notifWA">WhatsApp</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="notifEmail" checked>
+                                <label class="form-check-label" for="notifEmail">Email</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="notifSMS">
+                                <label class="form-check-label" for="notifSMS">SMS</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Update Lokasi</label>
+                            <select class="form-select" id="locationUpdate">
+                                <option value="5">Setiap 5 menit</option>
+                                <option value="15" selected>Setiap 15 menit</option>
+                                <option value="30">Setiap 30 menit</option>
+                                <option value="60">Setiap 1 jam</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Bahasa</label>
+                            <select class="form-select" id="language">
+                                <option value="id" selected>Bahasa Indonesia</option>
+                                <option value="en">English</option>
+                            </select>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Simpan',
+                cancelButtonText: 'Batal',
+                preConfirm: () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Pengaturan Disimpan',
+                        timer: 1500
+                    });
+                }
+            });
+        }
+
+        // Initialize sparkline
+        generateSparkline();
+
+        // Simulate real-time location updates
+        function updateLocation() {
+            const locations = [
+                [-6.9002, 110.4830], // Kelas
+                [-6.9003, 110.4832], // Perpustakaan
+                [-6.8998, 110.4835], // Kantin
+                [-6.9001, 110.4828], // Lapangan
+                [-6.9000, 110.4830]  // Kelas lagi
+            ];
+            
+            const randomLocation = locations[Math.floor(Math.random() * locations.length)];
+            
+            // In real implementation, this would update the map marker
+            console.log('Location updated:', randomLocation);
+            
+            // Update status text
+            const statuses = ['Sedang belajar', 'Di perpustakaan', 'Di kantin', 'Olahraga', 'Istirahat'];
+            const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+            
+            document.querySelector('.alert-success h5').textContent = `Status: ${randomStatus}`;
+            document.querySelector('.alert-success small').textContent = 
+                `Update: ${new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit'})}`;
+        }
+
+        // Update location every 30 seconds
+        setInterval(updateLocation, 30000);
+
+        // Simulate incoming messages
+        function simulateIncomingMessage() {
+            const messages = [
+                {
+                    sender: 'Wali Kelas',
+                    message: 'Pengingat: Besok ada remedial Matematika jam 14:00',
+                    time: '5 menit lalu'
+                },
+                {
+                    sender: 'Tata Usaha',
+                    message: 'Berkas PIP sudah diverifikasi dan dana akan dicairkan minggu depan',
+                    time: '1 jam lalu'
+                },
+                {
+                    sender: 'Kepala Sekolah',
+                    message: 'Selamat! Anak Anda terpilih sebagai peserta OSN Matematika tingkat kabupaten',
+                    time: '2 jam lalu'
+                }
+            ];
+            
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            
+            // Create notification
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+            
+            Toast.fire({
+                icon: 'info',
+                title: `Pesan dari ${randomMessage.sender}`,
+                text: randomMessage.message
+            });
+            
+            // Update notification badge
+            const badge = document.querySelector('.notification-bell .badge');
+            let count = parseInt(badge.textContent);
+            badge.textContent = count + 1;
+        }
+
+        // Simulate incoming messages every 2-5 minutes
+        setInterval(simulateIncomingMessage, Math.random() * 180000 + 120000);
+    </script>
+</body>
+</html>
